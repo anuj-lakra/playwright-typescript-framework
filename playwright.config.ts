@@ -37,7 +37,7 @@ export default defineConfig({
   // Retry failed tests on CI up to 2 times
   retries: process.env.CI ? 2 : 0,
   // Fail the build after 10 failures on CI
-  maxFailures: process.env.CI ? 10 : 15,
+  maxFailures: process.env.CI ? 5 : 10,
   /* Opt out of parallel tests on CI. */
 
   workers: process.env.CI ? 3 : undefined,
