@@ -6,4 +6,3 @@
 /blob-report/
 /playwright/.cache/
 .env
-/coverage
