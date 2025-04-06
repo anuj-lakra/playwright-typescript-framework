@@ -6,3 +6,5 @@
 /blob-report/
 /playwright/.cache/
 .env
+.vscode/
+.DS_Store
