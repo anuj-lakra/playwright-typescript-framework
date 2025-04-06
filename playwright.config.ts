@@ -67,8 +67,8 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: "ui-tests",
-      testDir: "./tests/ui",
+      name: "tests",
+      testDir: "./tests",
       use: { ...devices["Desktop Chrome"] },
     },
   ],

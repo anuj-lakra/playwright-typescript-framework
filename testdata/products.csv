@@ -1,0 +1,6 @@
+id,name,price,category,inStock
+P001,Laptop,1200,Electronics,true
+P002,Headphones,100,Electronics,true
+P003,Keyboard,50,Electronics,false
+P004,Coffee Mug,15,Kitchen,true
+P005,Notebook,5,Office,true
