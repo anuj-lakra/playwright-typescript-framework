@@ -4,39 +4,57 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "pretest": "tsc --noEmit && eslint .",
     "test": "playwright test",
+    "test:unit": "node --experimental-vm-modules --loader ts-node/esm node_modules/jest/bin/jest.js",
+    "test:unit:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:unit:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:all": "npm run test:unit && npm run test",
     "upload-results": "node xray/jira-xray.js"
   },
   "repository": {
     "type": "git",
-    "url": "git@github-deloitte:Deloitte-US/playwright-typescript-framework.git"
+    "url": ""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.0",
-    "@eslint/js": "^9.10.0",
-    "@faker-js/faker": "^9.5.0",
-    "@playwright/test": "^1.50.1",
+    "@axe-core/playwright": "^4.10.1",
+    "@eslint/js": "^9.24.0",
+    "@faker-js/faker": "^9.6.0",
+    "@playwright/test": "^1.51.1",
     "@types/crypto-js": "^4.2.2",
-    "@types/eslint__js": "^8.42.3",
-    "@types/node": "^22.13.9",
-    "@typescript-eslint/eslint-plugin": "^8.5.0",
-    "@typescript-eslint/parser": "^8.5.0",
-    "@xray-app/playwright-junit-reporter": "^0.3.0",
-    "axios": "^1.7.7",
+    "@types/eslint__js": "^9.14.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.14.0",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/pdfjs-dist": "^2.10.378",
+    "@types/pdfkit": "^0.13.9",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "@xray-app/playwright-junit-reporter": "^0.5.0",
+    "axios": "^1.8.4",
     "csv-parse": "^5.6.0",
-    "dotenv": "^16.4.5",
-    "eslint": "^9.10.0",
-    "eslint-plugin-playwright": "^2.1.0",
-    "form-data": "^4.0.1",
+    "dotenv": "^16.4.7",
+    "eslint": "^9.24.0",
+    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-playwright": "^2.2.0",
+    "form-data": "^4.0.2",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "ts-jest": "^29.3.1",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.5.0"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.0"
   },
   "dependencies": {
-    "crypto-js": "^4.2.0"
-  }
+    "canvas": "^3.1.0",
+    "crypto-js": "^4.2.0",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.1.91",
+    "pdfkit": "^0.16.0"
+  },
+  "type": "module"
 }
