@@ -11,7 +11,7 @@ export default {
   ],
   collectCoverage: true,
   collectCoverageFrom: [
-    "src/utilities/files/**/*.ts", // Collect coverage for utilities
+    "src/utilities/**/*.ts", // Collect coverage for utilities
     "!**/node_modules/**",
     "!**/*.d.ts",
   ],
