@@ -1,5 +1,5 @@
 import { test, expect } from "@fixtures/todo-fixture";
-import { runAccessibilityScan } from "@utilities/accessibility";
+import { runAccessibilityScan } from "@utilities/web/accessibility";
 
 test("Accessibility scan for Todo App", async ({ todoPage, page }) => {
   await todoPage.navigateToTodoApp();
