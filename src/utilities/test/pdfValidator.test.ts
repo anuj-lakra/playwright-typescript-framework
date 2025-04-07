@@ -1,4 +1,4 @@
-import { PdfValidator } from "@utilities/pdfValidator";
+import { PdfValidator } from "@utilities/files/pdfValidator";
 import * as fs from "fs/promises";
 
 // Mock fs/promises module

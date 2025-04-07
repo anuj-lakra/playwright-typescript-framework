@@ -1,5 +1,5 @@
 // src/utilities/dataParser.test.ts
-import { DataParser } from "./dataParser";
+import { DataParser } from "@utilities/files/dataParser";
 import * as fs from "fs/promises";
 import * as XLSX from "xlsx";
 import { parse as csvParse } from "csv-parse/sync";

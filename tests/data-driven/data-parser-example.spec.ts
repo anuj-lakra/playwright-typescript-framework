@@ -1,6 +1,6 @@
 // tests/unit/data-parser-example.spec.ts
 import { test, expect } from "@playwright/test";
-import { DataParser } from "@utilities/dataParser";
+import { DataParser } from "@utilities/files/dataParser";
 import { fileURLToPath } from "url";
 import * as path from "path";
 
