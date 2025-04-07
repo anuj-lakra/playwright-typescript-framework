@@ -1,6 +1,6 @@
 // src/utilities/dataParser.ts
+import ExcelJS from "exceljs";
 import { parse as csvParse } from "csv-parse/sync";
-import * as XLSX from "xlsx";
 import * as fs from "fs/promises";
 import * as path from "path";
 
@@ -206,15 +206,11 @@ export class DataParser {
     // Read file content
     const fileContent = await fs.readFile(filePath);
 
-    // Parse Excel content
-    let workbook: XLSX.WorkBook;
+    // Parse Excel content using ExcelJS instead of xlsx
+    const workbook = new ExcelJS.Workbook();
+
     try {
-      workbook = XLSX.read(fileContent, {
-        type: "buffer",
-        cellDates: true,
-        cellNF: true,
-        cellText: true,
-      });
+      await workbook.xlsx.load(fileContent);
     } catch (error) {
       throw new Error(
         `Failed to parse Excel file: ${(error as Error).message}`
@@ -222,40 +218,73 @@ export class DataParser {
     }
 
     // Determine which sheet to use
-    const sheetName = options.sheetName || workbook.SheetNames[0];
-    if (!workbook.SheetNames.includes(sheetName)) {
+    const worksheet = options.sheetName
+      ? workbook.getWorksheet(options.sheetName)
+      : workbook.worksheets[0];
+
+    if (!worksheet) {
       throw new Error(
-        `Sheet "${sheetName}" not found in Excel file. Available sheets: ${workbook.SheetNames.join(
-          ", "
-        )}`
+        `Sheet "${
+          options.sheetName || "first sheet"
+        }" not found in Excel file. Available sheets: ${workbook.worksheets
+          .map((s) => s.name)
+          .join(", ")}`
       );
     }
 
-    // Get sheet data
-    const worksheet = workbook.Sheets[sheetName];
+    // Convert the data to an array of objects
+    const rows: Record<string, any>[] = [];
+    const headers: string[] = [];
 
-    // Parse sheet data
-    const sheetData = XLSX.utils.sheet_to_json(worksheet, {
-      header: options.header ? 1 : undefined,
-      raw: !options.dynamicTyping,
-      blankrows: !options.skipEmptyLines,
+    // Process headers (first row if header is true)
+    if (options.header) {
+      worksheet.getRow(1).eachCell((cell, colNumber) => {
+        headers.push(cell.value?.toString() || `Column${colNumber}`);
+      });
+    } else {
+      // Generate column headers if no headers
+      for (let i = 1; i <= worksheet.columnCount; i++) {
+        headers.push(`Column${i}`);
+      }
+    }
+
+    // Get the data starting from the appropriate row
+    const startRow = options.header ? 2 : 1;
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber >= startRow) {
+        if (options.skipEmptyLines && row.cellCount === 0) {
+          return;
+        }
+
+        const rowData: Record<string, any> = {};
+        row.eachCell((cell, colNumber) => {
+          const header = headers[colNumber - 1] || `Column${colNumber}`;
+          let value = cell.value;
+
+          // Convert cell values to appropriate types if dynamicTyping is enabled
+          if (options.dynamicTyping) {
+            if (typeof value === "object" && value !== null) {
+              // Handle Excel date objects
+              if ("result" in value) {
+                value = value.result;
+              } else if (value instanceof Date) {
+                value = value;
+              }
+            }
+          }
+
+          rowData[header] = value;
+        });
+
+        // Only add non-empty rows
+        if (Object.keys(rowData).length > 0) {
+          rows.push(rowData);
+        }
+      }
     });
 
-    // Extract headers
-    let headers: string[];
-    if (options.header) {
-      headers = Object.keys(sheetData[0] || {});
-    } else {
-      // If no header, use column indices as headers
-      const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
-      headers = Array.from(
-        { length: range.e.c - range.s.c + 1 },
-        (_, i) => `Column${i + 1}`
-      );
-    }
-
     return {
-      data: sheetData as T[],
+      data: rows as T[],
       headers,
       fileInfo: {
         filePath,
