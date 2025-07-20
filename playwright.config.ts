@@ -44,7 +44,7 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     process.env.CI ? ["blob"] : ["html", { open: "never" }],
-    ["@xray-app/playwright-junit-reporter", xrayOptions],
+    //["@xray-app/playwright-junit-reporter", xrayOptions],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

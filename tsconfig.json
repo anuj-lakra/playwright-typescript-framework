@@ -5,6 +5,7 @@
     "types": ["node", "jest", "@playwright/test"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
     "module": "ESNext",
     "moduleResolution": "node",
     "baseUrl": "./",

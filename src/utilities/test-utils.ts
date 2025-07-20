@@ -8,7 +8,6 @@ import { Page, TestInfo, test } from "@playwright/test";
  * @param {TestInfo} testInfo - The test information object.
  * @param {string} testKey - The Xray test key.
  * @param {string} testSummary - The summary of the test.
- * @param {string} requirements - The requirements associated with the test.
  * @param {string} testDescription - The description of the test.
  */
 export function addTestAnnotations(
@@ -46,14 +45,89 @@ export async function captureAndAttachScreenshot(
   });
 }
 
-export function step(stepName?: string) {
-  return function (target: Function, context: ClassMemberDecoratorContext) {
-    return function replacementMethod(this: any, ...args: any) {
-      const name =
-        stepName || `${this.constructor.name}.${context.name as string}`;
-      return test.step(name, async () => {
-        return await target.call(this, ...args);
+/**
+ * Helper function to wrap methods with test.step
+ * @param description - The description of the step that will appear in test reports
+ * @param fn - The function to wrap
+ * @returns A function that executes within a test step
+ */
+export function withStep<T extends (...args: any[]) => Promise<any>>(
+  description: string,
+  fn: T
+): T {
+  return (async (...args: any[]) => {
+    return await test.step(description, async () => {
+      return await fn(...args);
+    });
+  }) as T;
+}
+
+/**
+ * Step decorator that uses Playwright's built-in test.step functionality
+ * Compatible with both legacy and modern TypeScript decorator syntax
+ * @param description - The description of the step that will appear in test reports
+ */
+export function step(description: string) {
+  return function (target: any, context: any, descriptor?: any) {
+    // Handle modern decorator syntax (Stage 3 decorators)
+    if (typeof context === "object" && context.kind === "method") {
+      return function (this: any, ...args: any[]) {
+        return test.step(description, async () => {
+          return await target.apply(this, args);
+        });
+      };
+    }
+
+    // Handle legacy decorator syntax
+    const propertyKey = context;
+    let methodDescriptor = descriptor;
+
+    if (!methodDescriptor) {
+      methodDescriptor = Object.getOwnPropertyDescriptor(target, propertyKey);
+    }
+
+    if (!methodDescriptor && target.prototype) {
+      methodDescriptor = Object.getOwnPropertyDescriptor(
+        target.prototype,
+        propertyKey
+      );
+    }
+
+    if (!methodDescriptor) {
+      const property = target[propertyKey];
+      if (typeof property === "function") {
+        methodDescriptor = {
+          value: property,
+          writable: true,
+          enumerable: false,
+          configurable: true,
+        };
+      }
+    }
+
+    if (!methodDescriptor || !methodDescriptor.value) {
+      // For legacy decorators, try to define the method wrapper directly
+      if (typeof propertyKey === "string" || typeof propertyKey === "symbol") {
+        const originalMethod = target[propertyKey];
+        if (typeof originalMethod === "function") {
+          target[propertyKey] = async function (this: any, ...args: any[]) {
+            return await test.step(description, async () => {
+              return await originalMethod.apply(this, args);
+            });
+          };
+        }
+      }
+      return;
+    }
+
+    const originalMethod = methodDescriptor.value;
+
+    methodDescriptor.value = async function (this: any, ...args: any[]) {
+      return await test.step(description, async () => {
+        return await originalMethod.apply(this, args);
       });
     };
+
+    return methodDescriptor;
   };
 }
